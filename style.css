@@ -674,8 +674,8 @@ body{
   overflow-x:auto;
   overflow-y:hidden;
   scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-x;
+  -webkit-overflow-scrolling:auto;
+  touch-action:auto;
   cursor:grab;
 }
 .cat-strip::-webkit-scrollbar{display:none}
@@ -782,8 +782,8 @@ body{
   scrollbar-width:none;
   padding:.45rem .25rem 1rem;
   scroll-snap-type:x proximity;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-x;
+  -webkit-overflow-scrolling:auto;
+  touch-action:auto;
   cursor:grab;
 }
 .hslider::-webkit-scrollbar{display:none}
@@ -832,6 +832,7 @@ body{
   display:flex;flex-direction:column;gap:.55rem;
   opacity:0;
   transform:translateY(20px);
+  touch-action:auto;
 }
 .hero-text #heroTitle,.hero-text #heroLead{min-height:1.2em}
 .pcard.in-view{
@@ -1012,6 +1013,7 @@ body{
   display:flex;flex-direction:column;gap:.5rem;
   position:relative;
   overflow:hidden;
+  touch-action:auto;
 }
 .rcard:hover{
   transform:translateY(-6px);

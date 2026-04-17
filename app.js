@@ -631,27 +631,47 @@ function initCatStripScroll(){
   if(!strip||strip.dataset.scrollReady==='1')return;
   strip.dataset.scrollReady='1';
 
-  let isDown=false,startX=0,startLeft=0;
+  let drag=null;
+  const threshold=8;
+
   strip.addEventListener('pointerdown',(e)=>{
-    if(e.pointerType==='mouse'&&e.button!==0)return;
-    isDown=true;
-    startX=e.clientX;
-    startLeft=strip.scrollLeft;
+    if(e.pointerType!=='mouse')return;
+    if(e.button!==0)return;
+    drag={
+      startX:e.clientX,
+      startY:e.clientY,
+      startLeft:strip.scrollLeft,
+      locked:false
+    };
     strip.classList.add('dragging');
-    // Removed PointerCapture to allow clicks on buttons within the strip
-    // try{strip.setPointerCapture(e.pointerId);}catch(_){}
-  });
+  }, { passive: true });
+
   const endDrag=()=>{
-    isDown=false;
+    drag=null;
     strip.classList.remove('dragging');
   };
-  strip.addEventListener('pointerup',endDrag);
-  strip.addEventListener('pointercancel',endDrag);
-  strip.addEventListener('pointerleave',()=>{ if(isDown&&window.innerWidth>768)endDrag(); });
-  strip.addEventListener('pointermove',(e)=>{
-    if(!isDown)return;
-    strip.scrollLeft=startLeft-(e.clientX-startX);
-  });
+
+  window.addEventListener('pointerup',endDrag, { passive: true });
+  window.addEventListener('pointercancel',endDrag, { passive: true });
+  window.addEventListener('pointermove',(e)=>{
+    if(!drag)return;
+    const dx=e.clientX-drag.startX;
+    const dy=e.clientY-drag.startY;
+
+    if(!drag.locked){
+      if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>threshold){
+        endDrag();
+        return;
+      }
+      if(Math.abs(dx)>threshold){
+        drag.locked=true;
+      }
+    }
+
+    if(drag.locked){
+      strip.scrollLeft=drag.startLeft-dx;
+    }
+  }, { passive: true });
   // Make mouse wheel move the strip horizontally on desktop.
   strip.addEventListener('wheel',(e)=>{
     if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
@@ -691,40 +711,8 @@ function initProductsDragScroll(){
   let suppressClickUntil=0;
   let suppressScopeEl=null;
 
-  document.addEventListener('pointerdown',(e)=>{
-    const hs=e.target&&e.target.closest?e.target.closest('.hslider'):null;
-    if(!hs)return;
-    // Keep controls/select/buttons clickable.
-    if(e.target.closest('button,select,input,textarea,label,a'))return;
-    if(e.pointerType==='mouse'&&e.button!==0)return;
-    const moveThreshold=e.pointerType==='touch'?24:12;
-    drag={
-      el:hs,startX:e.clientX,startLeft:hs.scrollLeft,moved:false,pointerId:e.pointerId,
-      lastX:e.clientX,lastT:performance.now(),velocity:0,threshold:moveThreshold,maxDx:0
-    };
-    hs.classList.add('dragging');
-    try{hs.setPointerCapture(e.pointerId);}catch(_){}
-  });
-
-  document.addEventListener('pointermove',(e)=>{
-    if(!drag)return;
-    const dx=e.clientX-drag.startX;
-    const adx=Math.abs(dx);
-    if(adx>drag.maxDx)drag.maxDx=adx;
-    if(adx>drag.threshold)drag.moved=true;
-    // Keep 1:1 movement to avoid jumpy release feeling.
-    drag.el.scrollLeft=drag.startLeft-dx;
-    const now=performance.now();
-    const dt=Math.max(1,now-drag.lastT);
-    const vx=(e.clientX-drag.lastX)/dt;
-    drag.velocity=drag.velocity*0.72+vx*0.28;
-    drag.lastX=e.clientX;
-    drag.lastT=now;
-  });
-
   const endDrag=()=>{
     if(!drag)return;
-    // Suppress click only after a clear drag, not tiny touch jitter.
     if(drag.moved&&drag.maxDx>(drag.threshold+8)){
       suppressClickUntil=Date.now()+180;
       suppressScopeEl=drag.el;
@@ -734,13 +722,69 @@ function initProductsDragScroll(){
     drag.el.classList.remove('dragging');
     drag=null;
   };
-  document.addEventListener('pointerup',endDrag);
-  document.addEventListener('pointercancel',endDrag);
 
-  // Prevent accidental click after dragging card.
+  document.addEventListener('pointerdown',(e)=>{
+    const hs=e.target&&e.target.closest?e.target.closest('.hslider'):null;
+    if(!hs)return;
+    if(e.target.closest('button,select,input,textarea,label,a'))return;
+    if(e.pointerType!=='mouse')return;
+    if(e.button!==0)return;
+
+    const moveThreshold=e.pointerType==='touch'?20:10;
+    drag={
+      el:hs,
+      startX:e.clientX,
+      startY:e.clientY,
+      startLeft:hs.scrollLeft,
+      moved:false,
+      locked:false,
+      pointerId:e.pointerId,
+      lastX:e.clientX,
+      lastT:performance.now(),
+      velocity:0,
+      threshold:moveThreshold,
+      maxDx:0
+    };
+  }, { passive: true });
+
+  window.addEventListener('pointermove',(e)=>{
+    if(!drag)return;
+    const dx=e.clientX-drag.startX;
+    const dy=e.clientY-drag.startY;
+    const adx=Math.abs(dx);
+    const ady=Math.abs(dy);
+
+    if(!drag.locked){
+      if(ady>adx&&ady>drag.threshold){
+        drag=null;
+        return;
+      }
+      if(adx>drag.threshold){
+        drag.locked=true;
+        drag.moved=true;
+        drag.el.classList.add('dragging');
+        try{drag.el.setPointerCapture(drag.pointerId);}catch(_){}
+      }
+    }
+
+    if(drag.locked){
+      if(adx>drag.maxDx)drag.maxDx=adx;
+      drag.el.scrollLeft=drag.startLeft-dx;
+      
+      const now=performance.now();
+      const dt=Math.max(1,now-drag.lastT);
+      const vx=(e.clientX-drag.lastX)/dt;
+      drag.velocity=drag.velocity*0.72+vx*0.28;
+      drag.lastX=e.clientX;
+      drag.lastT=now;
+    }
+  }, { passive: true });
+
+  window.addEventListener('pointerup',endDrag, { passive: true });
+  window.addEventListener('pointercancel',endDrag, { passive: true });
+
   document.addEventListener('click',(e)=>{
     if(Date.now()>suppressClickUntil)return;
-    // Always allow recommendation card taps.
     if(e.target&&e.target.closest&&e.target.closest('.rcard'))return;
     const hs=e.target&&e.target.closest?e.target.closest('.hslider'):null;
     if(hs&&(!suppressScopeEl||hs===suppressScopeEl)){
