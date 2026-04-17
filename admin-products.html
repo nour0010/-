@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدارة العطور — Areej Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a2e;--ink2:#3d3d5c;--ink3:#7b7b9d;
+  --base:#f6f7fb;--surface:#fff;
+  --emerald:#1a6b4a;--emerald2:#25a06e;--emerald3:#d4f0e3;
+  --amber:#f5a623;--red:#e85d4a;
+  --line:#e8eaf0;--r:14px;--r2:22px;
+}
+body{font-family:'Tajawal',sans-serif;background:var(--base);color:var(--ink);min-height:100vh;line-height:1.45}
+a{color:var(--emerald)}
+code{font-size:.78em;background:#eef0f8;padding:2px 6px;border-radius:6px}
+
+/* ── Top bar ── */
+.top{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:.85rem clamp(1rem,3vw,2rem);
+  display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;justify-content:space-between;
+}
+.top h1{font-size:clamp(.95rem,2.2vw,1.1rem);font-weight:900;color:var(--emerald)}
+.top-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+
+/* ── Layout ── */
+.wrap{max-width:1280px;margin:0 auto;padding:1rem clamp(.75rem,2vw,1.5rem) 2.5rem}
+
+/* ── Toolbar (عملي) ── */
+.ad-toolbar{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);
+  padding:1rem 1.1rem;margin-bottom:1.25rem;
+  display:grid;gap:.75rem;
+  grid-template-columns:1fr;
+}
+@media(min-width:900px){
+  .ad-toolbar{grid-template-columns:1fr 200px 160px auto;align-items:end}
+}
+.ad-toolbar label{display:block;font-size:.72rem;font-weight:800;color:var(--ink3);margin-bottom:.35rem}
+.ad-toolbar input,.ad-toolbar select{
+  width:100%;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:var(--r);
+  font-family:inherit;font-size:.88rem;background:#fafbfe;
+}
+.ad-toolbar input:focus,.ad-toolbar select:focus{
+  outline:none;border-color:var(--emerald2);box-shadow:0 0 0 3px rgba(37,160,110,.12);
+}
+.ad-count{font-size:.8rem;color:var(--ink3);padding:.4rem 0}
+
+/* ── Product grid (كروت مثل المتجر) ── */
+.ad-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(168px,1fr));
+  gap:1rem;
+}
+@media(min-width:600px){
+  .ad-grid{grid-template-columns:repeat(auto-fill,minmax(185px,1fr));}
+}
+
+.ad-pcard{
+  background:#fff;border:1.5px solid var(--line);border-radius:var(--r2);
+  padding:1rem;display:flex;flex-direction:column;gap:.5rem;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  position:relative;
+}
+.ad-pcard:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 32px rgba(26,107,74,.1);
+  border-color:var(--emerald2);
+}
+.ad-pcard.inactive{opacity:.72;border-style:dashed}
+.ad-pcard-media{
+  aspect-ratio:1.05;border-radius:var(--r);
+  background:linear-gradient(145deg,#f4f7f5,#eef4f0);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+}
+.ad-pcard-media img{width:100%;height:100%;object-fit:cover;display:block}
+.ad-pcard-emoji{font-size:2.6rem;line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.08))}
+.ad-pcard-name{font-weight:900;font-size:.92rem;text-align:center;line-height:1.25;color:var(--ink);min-height:2.4em}
+.ad-pcat{
+  align-self:center;font-size:.68rem;font-weight:700;color:#fff;background:var(--emerald2);
+  padding:.2rem .55rem;border-radius:50px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.ad-meta{
+  display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;font-size:.68rem;font-weight:700;
+}
+.ad-meta span{background:var(--base);padding:.15rem .45rem;border-radius:8px;color:var(--ink2)}
+.ad-meta .price{color:var(--emerald);font-size:.78rem;font-weight:900}
+.ad-meta .stock{color:#0d5c36}
+.ad-pcard-foot{display:flex;gap:.35rem;margin-top:auto;padding-top:.35rem}
+.ad-pcard-foot .btn{flex:1;font-size:.75rem;padding:.4rem .5rem}
+
+/* ── Panels / login ── */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:1.25rem;margin-bottom:1rem}
+.panel h2{font-size:.95rem;margin-bottom:.75rem;font-weight:900;color:var(--ink)}
+.fg{margin-bottom:.75rem}
+.fg label{display:block;font-size:.74rem;font-weight:800;color:var(--ink3);margin-bottom:.3rem}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.86rem;background:#fafbfe;
+}
+.fg textarea{min-height:56px;resize:vertical}
+.fgrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.65rem}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.35rem;
+  padding:.52rem 1rem;border-radius:50px;border:none;font-family:inherit;font-weight:800;font-size:.84rem;cursor:pointer;transition:.15s;
+}
+.btn-em{background:var(--emerald);color:#fff}
+.btn-em:hover{background:var(--emerald2)}
+.btn-ghost{background:#eef0f8;color:var(--ink)}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-sm{padding:.32rem .55rem;font-size:.74rem}
+.btn-danger{background:#fdecec;color:#b22;border:1px solid #f5c4c4}
+.btn-block{width:100%}
+.msg{padding:.7rem;border-radius:10px;font-size:.84rem;margin-top:.65rem}
+.msg.err{background:#fdecec;color:#8b2a2a;border:1px solid #f5c4c4}
+.msg.ok{background:#e8f8ef;color:#1a5c3a;border:1px solid #b8e8cc}
+.msg.hint{background:#fff8e6;color:#7a5a00;border:1px solid #f5e0a8}
+.login-box{max-width:420px;margin:2rem auto}
+.hidden{display:none!important}
+
+/* ── Modal (منظم) ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(20,22,40,.48);z-index:1000;
+  display:none;align-items:flex-start;justify-content:center;padding:1.2rem 1rem;overflow-y:auto;
+}
+.modal-bg.on{display:flex}
+.modal{
+  background:var(--surface);border-radius:18px;width:100%;max-width:720px;
+  border:1px solid var(--line);box-shadow:0 24px 64px rgba(0,0,0,.14);margin-bottom:2rem;
+}
+.modal-hd{
+  padding:1rem 1.15rem;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+  background:linear-gradient(180deg,#fafdfb,#fff);
+}
+.modal-hd h3{font-size:1.05rem;font-weight:900;color:var(--emerald)}
+.modal-bd{padding:1.1rem 1.15rem 1.35rem}
+.xbtn{background:none;border:none;font-size:1.4rem;cursor:pointer;line-height:1;color:var(--ink3);padding:.2rem}
+.sec{margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid #f0f2f8}
+.sec:last-of-type{border-bottom:none;margin-bottom:.5rem;padding-bottom:0}
+.sec-title{font-size:.8rem;font-weight:900;color:var(--emerald);margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
+.sec-title::before{content:'';width:4px;height:14px;background:var(--emerald);border-radius:3px}
+
+.variants{border:1.5px dashed #dce3ef;border-radius:12px;padding:.75rem;background:#fafbfd}
+.v-head{font-size:.75rem;font-weight:800;color:var(--ink2);margin-bottom:.5rem}
+.v-row{
+  display:grid;
+  grid-template-columns:1fr 88px 72px 34px;
+  gap:.35rem;align-items:center;margin-bottom:.4rem;
+}
+.v-row:last-child{margin-bottom:0}
+.v-row input{padding:.4rem .5rem;border:1px solid var(--line);border-radius:8px;font-size:.8rem;width:100%}
+.v-row .v-h{font-size:.62rem;color:var(--ink3);font-weight:700;margin-bottom:2px}
+@media(max-width:520px){
+  .v-row{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+  .v-row .del{grid-column:1/-1;justify-self:end}
+}
+
+.empty-grid{text-align:center;padding:2.5rem 1rem;color:var(--ink3);font-size:.9rem;background:#fff;border:1px dashed var(--line);border-radius:var(--r2)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>⚙️ إدارة العطور</h1>
+  <div class="top-actions">
+    <a href="index.html">← متجر العطور</a>
+    <button type="button" class="btn btn-ghost btn-sm hidden" id="btnLogout">خروج</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="boxLogin" class="panel login-box">
+    <h2>تسجيل الدخول</h2>
+    <p style="font-size:.84rem;color:var(--ink3);margin-bottom:1rem">حساب مسؤول (admin) أو مضاف في ADMIN_EMAIL_ALLOWLIST</p>
+    <div class="fg"><label for="em">البريد</label><input id="em" type="email" autocomplete="username"></div>
+    <div class="fg"><label for="pw">كلمة المرور</label><input id="pw" type="password" autocomplete="current-password"></div>
+    <button type="button" class="btn btn-em btn-block" id="btnLogin">دخول</button>
+    <div id="loginErr" class="msg err hidden"></div>
+  </div>
+
+  <div id="boxDenied" class="panel hidden">
+    <div class="msg err" id="deniedText"></div>
+    <button type="button" class="btn btn-ghost" id="btnLogout2">تسجيل الخروج</button>
+  </div>
+
+  <div id="boxHint" class="msg hint hidden">
+    إن رُفضت العمليات: راجع سياسات RLS على <code>products</code> و<code>product_variants</code> و<code>categories</code>.
+    لعمود المخزون: <code>ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_quantity int DEFAULT 0;</code>
+    وللأنواع: <code>ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS stock_qty int DEFAULT 0;</code>
+  </div>
+
+  <div id="boxMain" class="hidden">
+    <div class="ad-toolbar">
+      <div>
+        <label for="qSearch">بحث سريع</label>
+        <input type="search" id="qSearch" placeholder="اسم المنتج أو القسم…" autocomplete="off">
+      </div>
+      <div>
+        <label for="qCat">تصفية القسم</label>
+        <select id="qCat"><option value="">كل الأقسام</option></select>
+      </div>
+      <div>
+        <label for="qSort">الترتيب</label>
+        <select id="qSort">
+          <option value="sort">ترتيب العرض</option>
+          <option value="name">الاسم</option>
+          <option value="price">السعر</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:flex-end">
+        <button type="button" class="btn btn-em btn-sm" id="btnNew">+ منتج</button>
+        <button type="button" class="btn btn-amber btn-sm" id="btnNewCat">+ قسم</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnReload">↻ تحديث</button>
+      </div>
+    </div>
+    <p class="ad-count" id="adCount"></p>
+    <div class="ad-grid" id="adGrid"></div>
+  </div>
+</div>
+
+<!-- Modal منتج -->
+<div class="modal-bg" id="modProduct" aria-hidden="true">
+  <div class="modal" role="dialog">
+    <div class="modal-hd">
+      <h3 id="modTitle">منتج</h3>
+      <button type="button" class="xbtn" id="modClose" aria-label="إغلاق">×</button>
+    </div>
+    <div class="modal-bd">
+      <input type="hidden" id="fId">
+
+      <div class="sec">
+        <div class="sec-title">البيانات الأساسية</div>
+        <div class="fgrow">
+          <div class="fg"><label for="fName">اسم المنتج *</label><input id="fName" type="text" required></div>
+          <div class="fg"><label for="fEmoji">إيموجي</label><input id="fEmoji" type="text" placeholder="🥛"></div>
+        </div>
+        <div class="fg"><label for="fCat">القسم *</label><select id="fCat"></select></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-title">السعر والمخزون والوحدة</div>
+        <div class="fgrow">
+          <div class="fg"><label for="fPrice">السعر الأساسي (د.ع) *</label><input id="fPrice" type="number" min="0" step="1"></div>
+          <div class="fg"><label for="fUnit">وحدة البيع</label><input id="fUnit" placeholder="قطعة، كيلو…"></div>
+          <div class="fg"><label for="fStock">المتوفر (إجمالي)</label><input id="fStock" type="number" min="0" step="1" placeholder="0"></div>
+        </div>
+        <div class="fgrow">
+          <div class="fg"><label for="fSort">ترتيب الظهور</label><input id="fSort" type="number" value="0" step="1"></div>
+          <div class="fg" style="display:flex;flex-direction:column;justify-content:flex-end;gap:.45rem;padding-bottom:.15rem">
+            <label style="display:flex;align-items:center;gap:.45rem;font-weight:800;font-size:.84rem">
+              <input type="checkbox" id="fActive" checked> نشط في المتجر
+            </label>
+            <label style="display:flex;align-items:center;gap:.45rem;font-weight:800;font-size:.84rem">
+              <input type="checkbox" id="fFeat"> ممّيز
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-title">الصورة</div>
+        <div class="fg"><label for="fImgUrl">رابط الصورة</label><input id="fImgUrl" type="url" placeholder="https://…"></div>
+        <div class="fg"><label for="fFile">رفع ملف (بعد الحفظ يُرفَع للتخزين)</label><input id="fFile" type="file" accept="image/*"></div>
+      </div>
+
+      <div class="sec">
+      <div class="sec-title">أحجام العطر (الحجم · السعر المستقل · المتوفر)</div>
+        <div class="variants">
+          <div class="v-head">أضف صفاً لكل حجم (مثل: 50ml، 100ml، إصدار خاص)</div>
+          <div style="display:grid;grid-template-columns:1fr 88px 72px 34px;gap:.35rem;font-size:.62rem;color:var(--ink3);font-weight:700;margin-bottom:.25rem;padding:0 .15rem">
+            <span>اسم النوع</span><span>سعر النوع</span><span>المتوفر</span><span></span>
+          </div>
+          <div id="varRows"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnAddVar" style="margin-top:.5rem">+ إضافة نوع</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.25rem">
+        <button type="button" class="btn btn-em" id="btnSave">💾 حفظ في القاعدة</button>
+        <button type="button" class="btn btn-danger hidden" id="btnDelete">🗑 حذف المنتج</button>
+      </div>
+      <div id="saveMsg" class="msg hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal قسم -->
+<div class="modal-bg" id="modCat">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-hd">
+      <h3>قسم جديد</h3>
+      <button type="button" class="xbtn" id="modCatClose">×</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label for="cSlug">المعرّف (Latin) *</label><input id="cSlug" placeholder="fruits"></div>
+      <div class="fg"><label for="cName">الاسم بالعربي *</label><input id="cName" type="text"></div>
+      <div class="fgrow">
+        <div class="fg"><label for="cIcon">أيقونة</label><input id="cIcon" placeholder="🍎"></div>
+        <div class="fg"><label for="cSort">ترتيب</label><input id="cSort" type="number" value="0"></div>
+      </div>
+      <button type="button" class="btn btn-em btn-block" id="btnSaveCat">إنشاء القسم</button>
+      <div class="sec" style="margin-top:1rem">
+        <div class="sec-title">حذف قسم</div>
+        <div class="fg"><label for="cDeleteId">اختر القسم</label><select id="cDeleteId"></select></div>
+        <button type="button" class="btn btn-danger btn-block" id="btnDeleteCat">🗑 حذف القسم المحدد</button>
+      </div>
+      <div id="catMsg" class="msg hidden"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-api.js"></script>
+<script>
+const HEok = typeof window.HE !== 'undefined' && window.HE.Admin;
+const $ = (id) => document.getElementById(id);
+function show(el, on) { el.classList.toggle('hidden', !on); }
+const FORCE_ADMIN_EMAIL = 'byatynwry@gmail.com';
+
+let allProducts = [];
+let categoriesList = [];
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+
+function variantRow(name = '', price = 0, stock = '') {
+  const d = document.createElement('div');
+  d.className = 'v-row';
+  d.innerHTML = `
+    <input type="text" placeholder="اسم النوع" value="${String(name).replace(/"/g, '&quot;')}">
+    <input type="number" step="1" placeholder="سعر" value="${price}">
+    <input type="number" min="0" step="1" placeholder="كمية" value="${stock}">
+    <button type="button" class="btn btn-danger btn-sm del" title="حذف">×</button>
+  `;
+  d.querySelector('.del').onclick = () => d.remove();
+  return d;
+}
+
+function getBasePriceValue() {
+  return Math.max(0, Number($('fPrice').value) || 0);
+}
+
+function collectVariants() {
+  const basePrice = getBasePriceValue();
+  return [...$('varRows').querySelectorAll('.v-row')].map((r) => {
+    const inp = r.querySelectorAll('input');
+    const variantPriceRaw = Number(inp[1].value);
+    const variantPrice = Number.isFinite(variantPriceRaw) ? Math.max(0, variantPriceRaw) : basePrice;
+    return {
+      name_ar: inp[0].value.trim(),
+      // DB stores delta, but dashboard uses absolute variant price for stability.
+      price_delta: variantPrice - basePrice,
+      stock_qty: inp[2].value === '' ? 0 : Math.max(0, parseInt(inp[2].value, 10) || 0)
+    };
+  }).filter((v) => v.name_ar);
+}
+
+function fillCategories(cats) {
+  categoriesList = cats || [];
+  const opts = cats.map((c) => `<option value="${c.id}">${esc(c.name_ar)} (${esc(c.slug)})</option>`).join('');
+  $('fCat').innerHTML = opts;
+  $('qCat').innerHTML = '<option value="">كل الأقسام</option>' + cats.map((c) => `<option value="${esc(c.id)}">${esc(c.name_ar)}</option>`).join('');
+  renderCategoryDeleteOptions();
+}
+
+function renderCategoryDeleteOptions() {
+  const sel = $('cDeleteId');
+  if (!sel) return;
+  if (!categoriesList.length) {
+    sel.innerHTML = '<option value="">لا توجد أقسام</option>';
+    return;
+  }
+  sel.innerHTML = categoriesList.map((c) => `<option value="${esc(c.id)}">${esc(c.name_ar)} (${esc(c.slug)})</option>`).join('');
+}
+
+async function loadCategoriesIntoSelect() {
+  try {
+    const cats = await HE.Categories.list();
+    fillCategories(cats);
+    return cats;
+  } catch (e) {
+    // Fallback when categories are blocked by RLS.
+    categoriesList = [];
+    $('fCat').innerHTML = '<option value="">—</option>';
+    $('qCat').innerHTML = '<option value="">كل الأقسام</option>';
+    renderCategoryDeleteOptions();
+    $('boxHint').classList.remove('hidden');
+    return [];
+  }
+}
+
+function catNameById(id) {
+  const c = categoriesList.find((x) => String(x.id) === String(id));
+  return c ? c.name_ar : '—';
+}
+
+function isDefaultImg(url) {
+  return !url || String(url).startsWith('data:image/svg');
+}
+
+function filteredList() {
+  const q = ($('qSearch').value || '').trim().toLowerCase();
+  const cat = $('qCat').value;
+  let list = allProducts.slice();
+  if (q) {
+    list = list.filter((p) => {
+      const cn = (p.category && p.category.name_ar) || catNameById(p.category_id) || '';
+      return (p.name_ar || '').toLowerCase().includes(q) || cn.toLowerCase().includes(q);
+    });
+  }
+  if (cat) list = list.filter((p) => String(p.category_id) === String(cat));
+  const sort = $('qSort').value;
+  if (sort === 'name') list.sort((a, b) => (a.name_ar || '').localeCompare(b.name_ar || '', 'ar'));
+  else if (sort === 'price') list.sort((a, b) => Number(a.base_price) - Number(b.base_price));
+  else list.sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
+  return list;
+}
+
+function renderGrid() {
+  const grid = $('adGrid');
+  const list = filteredList();
+  $('adCount').textContent = list.length ? `عرض ${list.length} عطراً` : 'لا توجد نتائج';
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-grid" style="grid-column:1/-1">لا توجد عطور مطابقة. جرّب البحث أو أضف عطراً جديداً.</div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  list.forEach((p) => {
+    const card = document.createElement('div');
+    card.className = 'ad-pcard' + (p.is_active === false ? ' inactive' : '');
+    const imgUrl = p.image_url && !isDefaultImg(p.image_url) ? p.image_url : '';
+    const media = imgUrl
+      ? `<div class="ad-pcard-media"><img src="${esc(imgUrl)}" alt=""></div>`
+      : `<div class="ad-pcard-media"><span class="ad-pcard-emoji">${esc(p.emoji || '🧴')}</span></div>`;
+    const cn = (p.category && p.category.name_ar) || catNameById(p.category_id);
+    const vars = p.variants || [];
+    const stock = p.stock_quantity != null && p.stock_quantity !== '' ? Number(p.stock_quantity) : null;
+    const price = Number(p.base_price || 0).toLocaleString();
+    card.innerHTML = `
+      ${media}
+      <div class="ad-pcard-name">${esc(p.name_ar)}</div>
+      <div class="ad-pcat" title="${esc(cn)}">${esc(cn)}</div>
+      <div class="ad-meta">
+        <span class="price">${price} <small style="font-weight:600;font-size:.65rem">د.ع</small></span>
+        ${stock !== null ? `<span class="stock">مخزون ${stock}</span>` : ''}
+        <span>${vars.length} نوع</span>
+        <span>${p.is_active === false ? 'مخفي' : 'نشط'}</span>
+      </div>
+      <div class="ad-pcard-foot">
+        <button type="button" class="btn btn-em btn-sm btn-edit" data-id="${esc(p.id)}">تعديل</button>
+        <button type="button" class="btn btn-danger btn-sm btn-del" data-id="${esc(p.id)}">حذف</button>
+      </div>
+    `;
+    card.querySelector('.btn-edit').onclick = () => openEdit(p.id);
+    card.querySelector('.btn-del').onclick = () => quickDelete(p.id, p.name_ar);
+    grid.appendChild(card);
+  });
+}
+
+async function refreshTable() {
+  $('adGrid').innerHTML = '<div class="empty-grid" style="grid-column:1/-1">جاري التحميل…</div>';
+  try{
+    allProducts = await HE.Admin.listAllProducts();
+  }catch(e){
+    const msg = String(e && e.message ? e.message : e).toLowerCase();
+    const isRls =
+      msg.includes('permission') ||
+      msg.includes('rls') ||
+      msg.includes('not allowed') ||
+      msg.includes('forbidden');
+    if (isRls && HE.Products && HE.Products.getAll) {
+      // Fallback: allow opening dashboard in read-only-like mode when RLS blocks admin query.
+      allProducts = await HE.Products.getAll({ limit: 500 });
+      $('boxHint').classList.remove('hidden');
+    } else {
+      throw e;
+    }
+  }
+  renderGrid();
+}
+
+function quickDelete(id, name) {
+  if (!confirm(`حذف «${name || 'المنتج'}» نهائياً من القاعدة؟`)) return;
+  HE.Admin.deleteProduct(id)
+    .then((res) => {
+      if (res && res.softDeleted) {
+        alert('تعذر الحذف النهائي بسبب ارتباط الطلبات القديمة بهذا المنتج، لذلك تم إخفاؤه من المتجر بدلاً من ذلك.');
+      }
+      return refreshTable();
+    })
+    .catch((e) => alert(e.message || e));
+}
+
+function openModal() {
+  $('modProduct').classList.add('on');
+  $('modProduct').setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  $('modProduct').classList.remove('on');
+  $('modProduct').setAttribute('aria-hidden', 'true');
+}
+
+async function openEdit(id) {
+  $('saveMsg').className = 'msg hidden';
+  const p = await HE.Admin.getProduct(id);
+  $('modTitle').textContent = 'تعديل منتج';
+  $('fId').value = p.id;
+  $('fName').value = p.name_ar || '';
+  $('fEmoji').value = p.emoji || '';
+  $('fCat').value = p.category_id;
+  $('fPrice').value = p.base_price ?? '';
+  $('fUnit').value = p.unit || '';
+  $('fStock').value = p.stock_quantity != null && p.stock_quantity !== '' ? p.stock_quantity : '';
+  $('fSort').value = p.sort_order ?? 0;
+  $('fActive').checked = p.is_active !== false;
+  $('fFeat').checked = !!p.is_featured;
+  $('fImgUrl').value = p.image_url && !isDefaultImg(p.image_url) ? p.image_url : '';
+  $('btnDelete').classList.remove('hidden');
+  $('varRows').innerHTML = '';
+  const basePrice = Math.max(0, Number(p.base_price) || 0);
+  const vars = (p.variants || []).slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  if (vars.length) {
+    vars.forEach((v) => {
+      const absoluteVariantPrice = basePrice + (Number(v.price_delta) || 0);
+      $('varRows').appendChild(variantRow(v.name_ar, absoluteVariantPrice, v.stock_qty != null ? v.stock_qty : ''));
+    });
+  } else {
+    $('varRows').appendChild(variantRow('50ml', basePrice, ''));
+  }
+  openModal();
+}
+
+function openNew() {
+  $('saveMsg').className = 'msg hidden';
+  $('modTitle').textContent = 'منتج جديد';
+  $('fId').value = '';
+  $('fName').value = '';
+    $('fEmoji').value = '🧴';
+    $('fPrice').value = '85000';
+    $('fUnit').value = '50ml';
+  $('fStock').value = '0';
+  $('fSort').value = '0';
+  $('fActive').checked = true;
+  $('fFeat').checked = false;
+  $('fImgUrl').value = '';
+  $('btnDelete').classList.add('hidden');
+  $('varRows').innerHTML = '';
+  $('varRows').appendChild(variantRow('50ml', 85000, '0'));
+  openModal();
+}
+
+async function saveProduct() {
+  const msg = $('saveMsg');
+  msg.className = 'msg hidden';
+  const id = $('fId').value.trim();
+  const row = {
+    category_id: $('fCat').value,
+    name_ar: $('fName').value.trim(),
+    emoji: $('fEmoji').value.trim() || '🧴',
+    base_price: $('fPrice').value,
+    unit: $('fUnit').value.trim() || '50ml',
+    sort_order: $('fSort').value,
+    is_active: $('fActive').checked,
+    is_featured: $('fFeat').checked,
+    image_url: $('fImgUrl').value.trim() || null,
+    stock_quantity: $('fStock').value === '' ? undefined : $('fStock').value
+  };
+  if (!row.category_id) {
+    msg.className = 'msg err';
+    msg.textContent = 'اختر القسم';
+    msg.classList.remove('hidden');
+    return;
+  }
+  if (!row.name_ar) {
+    msg.className = 'msg err';
+    msg.textContent = 'أدخل اسم المنتج';
+    msg.classList.remove('hidden');
+    return;
+  }
+  const vars = collectVariants();
+  if (!vars.length) {
+    msg.className = 'msg err';
+    msg.textContent = 'أضف نوعاً واحداً على الأقل';
+    msg.classList.remove('hidden');
+    return;
+  }
+  try {
+    $('btnSave').disabled = true;
+    let saved;
+    if (id) {
+      saved = await HE.Admin.updateProduct(id, row, vars);
+      const file = $('fFile').files[0];
+      if (file) await HE.Products.uploadProductImage(saved.id, file);
+    } else {
+      saved = await HE.Admin.createProduct(row, vars);
+      const file = $('fFile').files[0];
+      if (file) await HE.Products.uploadProductImage(saved.id, file);
+    }
+    msg.className = 'msg ok';
+    msg.textContent = 'تم الحفظ. حدّث المتجر (F5) لمزامنة العرض.';
+    msg.classList.remove('hidden');
+    await refreshTable();
+    setTimeout(closeModal, 700);
+  } catch (e) {
+    msg.className = 'msg err';
+    msg.textContent = e.message || String(e);
+    msg.classList.remove('hidden');
+    $('boxHint').classList.remove('hidden');
+  } finally {
+    $('btnSave').disabled = false;
+    $('fFile').value = '';
+  }
+}
+
+async function deleteProduct() {
+  const id = $('fId').value.trim();
+  if (!id || !confirm('حذف المنتج نهائياً؟')) return;
+  try {
+    const res = await HE.Admin.deleteProduct(id);
+    if (res && res.softDeleted) {
+      $('saveMsg').className = 'msg hint';
+      $('saveMsg').textContent = 'تم إخفاء المنتج من المتجر بدلاً من حذفه نهائياً لأن عليه طلبات سابقة.';
+      $('saveMsg').classList.remove('hidden');
+    }
+    closeModal();
+    await refreshTable();
+  } catch (e) {
+    $('saveMsg').className = 'msg err';
+    $('saveMsg').textContent = e.message || String(e);
+    $('saveMsg').classList.remove('hidden');
+  }
+}
+
+async function boot() {
+  if (!HEok) {
+    $('boxLogin').innerHTML = '<p class="msg err">تعذّر تحميل supabase-api.js</p>';
+    return;
+  }
+  const { data: { session } } = await HE.db.auth.getSession();
+  if (session?.user) await afterLogin();
+  else showLogin();
+}
+
+function showLogin() {
+  show($('boxLogin'), true);
+  show($('boxMain'), false);
+  show($('boxDenied'), false);
+  show($('btnLogout'), false);
+}
+
+async function afterLogin() {
+  show($('boxLogin'), false);
+  try {
+    await loadCategoriesIntoSelect();
+    await refreshTable();
+    show($('boxMain'), true);
+    show($('boxDenied'), false);
+    show($('btnLogout'), true);
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    const isNotAdmin = msg.includes('صلاحية الإدارة غير مفعّلة');
+    let currentEmail = '';
+    try {
+      const u = await HE.Auth.getCurrentUser();
+      currentEmail = String((u && u.email) || '').trim().toLowerCase();
+    } catch (_) {}
+
+    // Hard fallback for explicit owner account to avoid lockout after account migration.
+    if (currentEmail === FORCE_ADMIN_EMAIL) {
+      try {
+        allProducts = await HE.Products.getAll({ limit: 500 });
+        renderGrid();
+      } catch (_) {
+        const grid = $('adGrid');
+        if (grid) {
+          grid.innerHTML = '<div class="empty-grid" style="grid-column:1/-1">تم تسجيل الدخول لكن لا يمكن جلب المنتجات حالياً.</div>';
+        }
+      }
+      show($('boxMain'), true);
+      show($('boxDenied'), false);
+      show($('btnLogout'), true);
+      $('boxHint').classList.remove('hidden');
+      return;
+    }
+
+    if (isNotAdmin) {
+      show($('boxMain'), false);
+      show($('boxDenied'), true);
+      const box = $('deniedText');
+      box.textContent = '';
+      const p1 = document.createElement('p');
+      p1.textContent = msg;
+      box.appendChild(p1);
+      try {
+        const u = await HE.Auth.getCurrentUser();
+        if (u && u.email) {
+          const p2 = document.createElement('div');
+          p2.style.cssText = 'margin-top:.85rem;font-size:.84rem;line-height:1.65;color:#3d3d5c';
+          p2.innerHTML =
+            '<p style="margin:0 0 .4rem"><strong>بريدك:</strong> ' + esc(u.email) + '</p>' +
+            '<pre style="background:#1a1a2e;color:#e8eaf0;padding:.65rem;border-radius:10px;font-size:.76rem;direction:ltr;text-align:left">const ADMIN_EMAIL_ALLOWLIST = [\'' +
+            u.email.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\'];</pre>';
+          box.appendChild(p2);
+        }
+      } catch (_) {}
+      $('boxHint').classList.remove('hidden');
+      return;
+    }
+    // Any non-admin error (often RLS): keep UI accessible and show hint.
+    show($('boxMain'), true);
+    show($('boxDenied'), false);
+    show($('btnLogout'), true);
+    $('boxHint').classList.remove('hidden');
+    const grid = $('adGrid');
+    if (grid && !grid.children.length) {
+      grid.innerHTML = '<div class="empty-grid" style="grid-column:1/-1">تم تسجيل الدخول، لكن لا يمكن جلب البيانات حالياً بسبب صلاحيات قاعدة البيانات (RLS).</div>';
+    }
+    alert('تم تسجيل الدخول، لكن توجد قيود صلاحيات على بعض عمليات الإدارة. راجع سياسات RLS في Supabase.');
+  }
+}
+
+$('btnLogin').onclick = async () => {
+  $('loginErr').classList.add('hidden');
+  try {
+    await HE.Auth.login({ email: $('em').value.trim(), password: $('pw').value });
+    await afterLogin();
+  } catch (e) {
+    $('loginErr').textContent = e.message || String(e);
+    $('loginErr').classList.remove('hidden');
+  }
+};
+
+$('btnLogout').onclick = $('btnLogout2').onclick = async () => {
+  await HE.Auth.logout();
+  showLogin();
+};
+
+$('btnReload').onclick = () => refreshTable().catch((e) => alert(e.message));
+$('btnNew').onclick = () => { loadCategoriesIntoSelect().then(() => openNew()); };
+$('btnNewCat').onclick = async () => {
+  await loadCategoriesIntoSelect();
+  $('modCat').classList.add('on');
+  $('catMsg').className = 'msg hidden';
+};
+$('modCatClose').onclick = () => { $('modCat').classList.remove('on'); };
+
+$('btnSaveCat').onclick = async () => {
+  const msg = $('catMsg');
+  try {
+    await HE.Admin.createCategory({
+      slug: $('cSlug').value.trim().toLowerCase().replace(/\s+/g, '-'),
+      name_ar: $('cName').value.trim(),
+      icon: $('cIcon').value.trim() || '📦',
+      sort_order: Number($('cSort').value) || 0
+    });
+    msg.className = 'msg ok';
+    msg.textContent = 'تم إنشاء القسم';
+    msg.classList.remove('hidden');
+    await loadCategoriesIntoSelect();
+    $('modCat').classList.remove('on');
+    $('cSlug').value = '';
+    $('cName').value = '';
+  } catch (e) {
+    msg.className = 'msg err';
+    msg.textContent = e.message || String(e);
+    msg.classList.remove('hidden');
+  }
+};
+
+$('btnDeleteCat').onclick = async () => {
+  const msg = $('catMsg');
+  const catId = $('cDeleteId').value;
+  if (!catId) {
+    msg.className = 'msg err';
+    msg.textContent = 'اختر قسماً للحذف';
+    msg.classList.remove('hidden');
+    return;
+  }
+  if (!confirm('هل أنت متأكد من حذف هذا القسم؟ سيتم رفض العملية إذا كان القسم يحتوي منتجات.')) return;
+  try {
+    await HE.Admin.deleteCategory(catId);
+    msg.className = 'msg ok';
+    msg.textContent = 'تم حذف القسم';
+    msg.classList.remove('hidden');
+    await loadCategoriesIntoSelect();
+    await refreshTable();
+  } catch (e) {
+    msg.className = 'msg err';
+    msg.textContent = e.message || String(e);
+    msg.classList.remove('hidden');
+  }
+};
+
+$('modClose').onclick = closeModal;
+$('modProduct').onclick = (e) => { if (e.target.id === 'modProduct') closeModal(); };
+$('btnSave').onclick = saveProduct;
+$('btnDelete').onclick = deleteProduct;
+$('btnAddVar').onclick = () => $('varRows').appendChild(variantRow('', getBasePriceValue(), ''));
+
+$('qSearch').addEventListener('input', renderGrid);
+$('qCat').addEventListener('change', renderGrid);
+$('qSort').addEventListener('change', renderGrid);
+
+HE.Auth.onAuthChange((_e, user) => {
+  if (user) afterLogin();
+  else showLogin();
+});
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أريج النخبة — متجر عطور فاخر</title>
+<!-- PWA Meta Tags -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0D0705">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@500;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="preloader" id="preloader" aria-live="polite">
+  <div class="preloader-spinner" aria-hidden="true"></div>
+  <div class="preloader-text">جاري تحميل المحتويات...</div>
+</div>
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav class="nav">
+
+  <!-- LOGO (always visible) -->
+  <a class="nav-logo" href="#">
+
+    <div class="logo-text-wrap">
+      <span class="logo-main">أريج النخبة</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.3rem">
+        <span class="logo-sub">متجر عطور فاخر</span>
+        <div class="logo-dots">
+          <div class="logo-dot-c"></div>
+          <div class="logo-dot-c"></div>
+          <div class="logo-dot-c"></div>
+        </div>
+      </div>
+    </div>
+  </a>
+
+  <!-- SEARCH (always visible) -->
+  <div class="nav-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="si" type="text" placeholder="ابحث عن عطرك المفضل..." autocomplete="off"
+      oninput="doSearch(this.value)" onfocus="doSearch(this.value)" onblur="setTimeout(closeSearch,200)">
+    <div class="srch-drop" id="sdrop"></div>
+  </div>
+
+  <!-- DESKTOP ACTIONS -->
+  <div class="nav-actions">
+    <button type="button" class="nbtn" onclick="openAddr()">
+      <span></span>
+      <span class="addr-text" id="addrTxt">موقعك</span>
+    </button>
+    <div class="nav-auth" id="navAuth">
+      <button type="button" class="nbtn" id="navGuestBtn" onclick="openLogin()">
+      <span></span>
+        <span id="loginTxt" style="font-size:.84rem">دخول</span>
+      </button>
+      <div class="nav-user" id="navUserWrap" style="display:none">
+        <button type="button" class="nbtn nav-user-trigger nav-welcome-btn" id="navUserBtn" onclick="toggleUserMenu(event)" aria-label="قائمة الحساب">
+          <span class="nav-welcome-emoji" aria-hidden="true"></span>
+          <span class="nav-welcome-stack">
+            <span class="nav-welcome-label">مرحباً</span>
+            <span class="nav-welcome-name" id="userNavName">—</span>
+          </span>
+          <span class="nav-chev">▾</span>
+        </button>
+        <div class="nav-user-menu" id="navUserMenu" role="menu">
+          <a href="admin-products.html" class="nav-user-menu-item" style="display:block;text-decoration:none;text-align:right;color:inherit">إدارة المنتجات</a>
+          <button type="button" class="nav-user-menu-item" onclick="menuLogout()">تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="nbtn primary" onclick="openCart()">
+      <span>🛒</span>
+      <span class="cart-badge" id="cBadge">0</span>
+    </button>
+    <button type="button" class="nbtn" id="orderQuickBtn" onclick="openOrdersSidebar()">
+      <span></span>
+      <span style="font-size:.82rem">الطلبات</span>
+    </button>
+  </div>
+
+  <!-- HAMBURGER (mobile only) -->
+  <button class="nav-menu-btn" id="menuBtn" onclick="toggleMobSidebar()" aria-label="القائمة">
+    <span></span><span></span><span></span>
+  </button>
+
+</nav>
+
+<!-- ═══════════════ MOBILE SIDEBAR ═══════════════ -->
+<div class="mob-overlay" id="mobOv" onclick="closeMobSidebar()"></div>
+<aside class="mob-sidebar" id="mobSb">
+
+  <!-- Header -->
+  <div class="mob-sb-header">
+    <div class="mob-sb-logo">
+
+      <div>
+        <div class="logo-main">أريج النخبة</div>
+        <div class="logo-sub">متجر عطور فاخر</div>
+      </div>
+    </div>
+    <button class="mob-sb-close" onclick="closeMobSidebar()">✕</button>
+  </div>
+
+  <!-- Body -->
+  <div class="mob-sb-body">
+
+    <!-- Account -->
+    <div class="mob-sb-section">
+      <div class="mob-sb-label">الحساب</div>
+      <button type="button" class="mob-sb-item" id="mobAuthItem" onclick="onMobAccountTap()">
+        <div class="si-icon blue"></div>
+        <div class="si-text">
+          <div class="si-title" id="mobLoginTitle">تسجيل الدخول</div>
+          <div class="si-sub" id="mobLoginSub">ادخل أو أنشئ حساباً جديداً</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="mob-sb-divider"></div>
+
+    <!-- Address -->
+    <div class="mob-sb-section">
+      <div class="mob-sb-label">التوصيل</div>
+      <button class="mob-sb-item" onclick="closeMobSidebar();openAddr()">
+        <div class="si-icon amber"></div>
+        <div class="si-text">
+          <div class="si-title">عنوان التوصيل</div>
+          <div class="si-sub" id="mobAddrSub">أضف موقعك لتحديد التوصيل</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="mob-sb-divider"></div>
+
+    <!-- Cart -->
+    <div class="mob-sb-section">
+      <div class="mob-sb-label">سلة التسوق</div>
+      <button class="mob-sb-item" onclick="closeMobSidebar();openCart()">
+        <div class="si-icon green">🛒</div>
+        <div class="si-text">
+          <div class="si-title">سلتي</div>
+          <div class="si-sub">عرض المنتجات المضافة</div>
+        </div>
+        <span class="si-badge" id="mobCartBadge">0</span>
+      </button>
+    </div>
+    
+    <div class="mob-sb-divider"></div>
+    <!-- Profile/Management -->
+    <div class="mob-sb-section">
+      <div class="mob-sb-label">الإدارة</div>
+      <a href="orders-dashboard.html" class="mob-sb-item" style="text-decoration:none">
+        <div class="si-icon purple" style="background:rgba(168,85,247,0.1);color:#a855f7">📊</div>
+        <div class="si-text">
+          <div class="si-title">لوحة التحكم</div>
+          <div class="si-sub">عرض وإدارة طلبات الزبائن</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="mob-sb-divider"></div>
+
+    <!-- Categories -->
+    <div class="mob-sb-section">
+      <div class="mob-sb-label">الأقسام</div>
+      <div id="mobCatsMenu"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="mob-sb-footer">
+    <button class="checkout-btn" style="margin-top:0" onclick="closeMobSidebar();openCart()">
+      اذهب للسلة
+    </button>
+    <div class="mob-sb-version">أريج النخبة © 2026 — جميع الحقوق محفوظة</div>
+  </div>
+
+</aside>
+
+<!-- ═══════════════ CAT STRIP ═══════════════ -->
+<div class="cat-strip-wrap">
+  <div class="cat-strip" id="catStrip"></div>
+</div>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="hero">
+  <div class="hero-video" aria-hidden="true">
+    <video autoplay muted loop playsinline preload="metadata">
+      <source src="https://lfzwynjzvqoctvftpxpi.supabase.co/storage/v1/object/public/products/Tccj89fp9unenjs8kjt7+%209Ujeokba9e(1).mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-text">
+    <div class="hero-tag">تشكيلة فاخرة أصلية</div>
+    <h1 id="heroTitle"></h1>
+    <p id="heroLead"></p>
+    <div class="hero-actions">
+      <button class="hbtn solid" onclick="document.querySelector('.page').scrollIntoView({behavior:'smooth'})">تسوّق الآن</button>
+      <button class="hbtn outline" onclick="openAddr()">حدد موقعك</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE CONTENT ═══════════════ -->
+<div class="page" id="pageContent">
+  <div class="order-track" id="orderTrackBox">
+    <div class="order-track-top">
+      <div class="order-track-id" id="orderTrackId">طلب #—</div>
+      <div class="order-track-status preparing" id="orderTrackStatus">يتم التجهيز</div>
+    </div>
+    <div class="order-track-meta" id="orderTrackMeta">سيتم تحديث الحالة تلقائياً.</div>
+    <div class="order-track-actions">
+      <button type="button" class="order-track-btn" onclick="refreshOrderStatus()">تحديث الحالة الآن</button>
+      <button type="button" class="order-track-btn" onclick="openOrderDetailsModal()">تفاصيل الطلب</button>
+      <button type="button" class="order-track-btn" onclick="clearOrderTracking()">إخفاء المتابعة</button>
+    </div>
+  </div>
+
+  <!-- رقائق Recommendations -->
+  <div id="recZone"></div>
+
+  <!-- الأقسام تُنشأ ديناميكياً -->
+  <div id="sectionsZone"></div>
+
+</div>
+
+<!-- ═══════════════ CART DRAWER ═══════════════ -->
+<div class="overlay" id="ov" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-hd">
+    <h2>سلتك</h2>
+    <button class="xbtn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-ft" id="drawerFt"></div>
+</aside>
+
+<!-- ═══════════════ ORDERS SIDEBAR ═══════════════ -->
+<div class="overlay" id="ordOv" onclick="closeOrdersSidebar()"></div>
+<aside class="drawer orders-drawer" id="ordersDrawer">
+  <div class="drawer-hd">
+    <h2>طلباتي</h2>
+    <button class="xbtn" onclick="closeOrdersSidebar()">✕</button>
+  </div>
+  <div class="drawer-body" id="ordersDrawerBody"></div>
+</aside>
+
+<!-- ═══════════════ LOGIN MODAL ═══════════════ -->
+<div class="modal-wrap" id="loginMod" onclick="if(event.target===this)closeLogin()">
+  <div class="modal">
+    <div class="modal-top">
+      <h2>حسابي</h2>
+      <button class="xbtn" onclick="closeLogin()">✕</button>
+    </div>
+    <div class="tabs">
+      <button type="button" class="tab active" onclick="swtTab('in',this)">دخول</button>
+      <button type="button" class="tab" onclick="swtTab('up',this)">حساب جديد</button>
+    </div>
+    <div id="authMsg" class="auth-msg" role="alert"></div>
+    <div id="tabIn">
+      <div class="fg"><label for="logEmail">البريد الإلكتروني</label><input id="logEmail" type="email" autocomplete="email" placeholder="you@mail.com"></div>
+      <div class="fg"><label for="logPass">كلمة المرور</label><input id="logPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      <button type="button" class="msub" id="btnLoginSubmit" onclick="doLogin()">تسجيل الدخول</button>
+      <button type="button" class="link-forgot" onclick="forgotPassword()">نسيت كلمة المرور؟</button>
+      <button type="button" class="link-forgot" style="margin-top:.2rem" onclick="openVerifyFromLogin()">لم تصلك رسالة تأكيد الحساب؟</button>
+    </div>
+    <div id="tabUp" style="display:none">
+      <div class="fgrow">
+        <div class="fg"><label for="regFname">الاسم الأول</label><input id="regFname" type="text" autocomplete="given-name" placeholder="أحمد"></div>
+        <div class="fg"><label for="regLname">اسم العائلة</label><input id="regLname" type="text" autocomplete="family-name" placeholder="علي"></div>
+      </div>
+      <div class="fg"><label for="regPhone">رقم الهاتف</label><input id="regPhone" type="tel" autocomplete="tel" placeholder="+964 7..."></div>
+      <div class="fg"><label for="regEmail">البريد الإلكتروني</label><input id="regEmail" type="email" autocomplete="email" placeholder="you@mail.com"></div>
+      <div class="fg"><label for="regPass">كلمة المرور</label><input id="regPass" type="password" autocomplete="new-password" placeholder="٦ أحرف على الأقل" minlength="6"></div>
+      <button type="button" class="msub" id="btnRegSubmit" onclick="doRegister()">إنشاء الحساب</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ VERIFY EMAIL (تأكيد الحساب) ═══════════════ -->
+<div class="modal-wrap" id="verifyMod" onclick="if(event.target===this)closeVerifyModal()">
+  <div class="modal verify-modal">
+    <div class="modal-top">
+      <h2>تأكيد بريدك الإلكتروني</h2>
+      <button type="button" class="xbtn" onclick="closeVerifyModal()">✕</button>
+    </div>
+    <p class="verify-lead">لتفعيل حسابك أرسلنا رابطاً آمناً إلى العنوان:</p>
+    <p class="verify-email" id="verifyEmailDisplay">—</p>
+    <ul class="verify-tips">
+      <li>افتح صندوق الوارد وابحث عن رسالة من مزود الخدمة (قد تتأخر دقيقة أو دقيقتين).</li>
+      <li>راجع مجلد <strong>Spam / الرسائل غير المرغوبة</strong> إن لم تجد الرسالة.</li>
+      <li>بعد الضغط على الرابط في البريد ستُفعَّل جلستك على هذه الصفحة تلقائياً.</li>
+    </ul>
+    <div class="verify-hint" id="verifyRedirectHint">
+      <strong>للمطوّرين:</strong> أضف هذا العنوان بالكامل في Supabase → Authentication → URL Configuration → <em>Redirect URLs</em> حتى يعمل الرابط:
+      <span class="mono" id="verifyRedirectUrl">—</span>
+    </div>
+    <button type="button" class="msub" id="btnResendVerify" onclick="resendVerification()">إعادة إرسال رسالة التأكيد</button>
+    <button type="button" class="link-forgot" style="margin-top:.5rem" onclick="switchToLoginFromVerify()">لدي حساب مفعّل — تسجيل الدخول</button>
+  </div>
+</div>
+
+<!-- ═══════════════ ADDRESS MODAL ═══════════════ -->
+<div class="modal-wrap" id="addrMod" onclick="if(event.target===this)closeAddr()">
+  <div class="modal">
+    <div class="modal-top">
+      <h2>عنوان التوصيل</h2>
+      <button class="xbtn" onclick="closeAddr()">✕</button>
+    </div>
+    <div class="fg">
+      <label>المحافظة</label>
+      <select id="cityS">
+        <option>بغداد</option><option>البصرة</option><option>الموصل</option>
+        <option>أربيل</option><option>النجف</option><option>كربلاء</option>
+        <option>الكوت</option><option>الديوانية</option><option>السماوة</option><option>الحلة</option>
+      </select>
+    </div>
+    <div class="fgrow">
+      <div class="fg"><label>الحي / المنطقة</label><input id="areaI" type="text" placeholder="المنصور..."></div>
+      <div class="fg"><label>الشارع</label><input id="strtI" type="text" placeholder="شارع 14"></div>
+    </div>
+    <div class="fgrow">
+      <div class="fg"><label>رقم البيت</label><input id="bldNoI" type="text" placeholder="٥"></div>
+      <div class="fg"><label>الطابق</label><input id="floorI" type="text" placeholder="اختياري"></div>
+    </div>
+    <div class="fg"><label>ملاحظات</label><textarea id="notesTa" placeholder="قريب من المسجد..."></textarea></div>
+    <button class="msub" onclick="saveAddr()">حفظ العنوان</button>
+  </div>
+</div>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════ ORDER DETAILS MODAL ═══════════════ -->
+<div class="modal-wrap" id="orderDetailsMod" onclick="if(event.target===this)closeOrderDetailsModal()">
+  <div class="modal">
+    <div class="modal-top">
+      <h2>تفاصيل طلبي</h2>
+      <button class="xbtn" onclick="closeOrderDetailsModal()">✕</button>
+    </div>
+    <div id="orderDetailsBody" style="max-height:55vh;overflow:auto;color:var(--ink2);font-size:.9rem;line-height:1.7">
+      جاري تحميل تفاصيل الطلب...
+    </div>
+    <div style="display:flex;gap:.55rem;margin-top:.9rem;flex-wrap:wrap">
+      <button type="button" class="msub" id="btnCancelMyOrder" onclick="cancelMyOrder()">إلغاء الطلب</button>
+      <button type="button" class="msub" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)" onclick="closeOrderDetailsModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-api.js"></script>
+
+<!-- ═══════════════ SCRIPT ═══════════════ -->
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker: Registered'))
+        .catch(err => console.log('Service Worker: Error: ' + err));
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "أريج النخبة - عطور فاخرة",
+  "short_name": "أريج النخبة",
+  "description": "متجر عطور أريج النخبة - تسوق أفضل العطور العالمية والنيش بأسعار تنافسية",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0D0705",
+  "theme_color": "#D4A84F",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

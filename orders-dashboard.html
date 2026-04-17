@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة طلبات العطور — Areej Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0D0705;
+    --surface: #130A06;
+    --card: #180F0A;
+    --border: rgba(224, 183, 102, 0.15);
+    --green: #E0B766;
+    --green-dim: #D4A84F;
+    --green-glow: rgba(224, 183, 102, 0.08);
+    --yellow: #F4D03F;
+    --blue: #3498DB;
+    --red: #E74C3C;
+    --text: #F5F2F0;
+    --text-muted: #D9D1CB;
+    --text-dim: #B2A8A1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid Background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(224,183,102,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(224,183,102,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; }
+
+  /* ── Header ── */
+  header {
+    background: rgba(17,24,17,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-dot {
+    width: 10px; height: 10px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-glow);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── Stats ── */
+  .stats-bar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: rgba(34,197,94,0.3); }
+
+  .stat-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .stat-icon.green { background: var(--green-glow); }
+  .stat-icon.yellow { background: rgba(234,179,8,0.12); }
+  .stat-icon.blue { background: rgba(59,130,246,0.12); }
+  .stat-icon.red { background: rgba(239,68,68,0.12); }
+
+  .stat-info { flex: 1; }
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 3px; }
+  .stat-value { font-size: 24px; font-weight: 800; line-height: 1; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-value.blue { color: var(--blue); }
+  .stat-value.red { color: var(--red); }
+
+  /* ── Main ── */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title span {
+    background: var(--green-glow);
+    color: var(--green);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  /* Filter Tabs */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-muted);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { border-color: var(--green); color: var(--green); }
+  .filter-btn.active { background: var(--green-glow); border-color: rgba(34,197,94,0.4); color: var(--green); }
+
+  /* ── Orders Grid ── */
+  .orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .order-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.25s;
+    animation: slideIn 0.4s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .order-card:hover {
+    border-color: rgba(34,197,94,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .order-card.new-order {
+    border-color: rgba(34,197,94,0.5);
+    box-shadow: 0 0 20px rgba(34,197,94,0.1);
+    animation: newOrder 0.6s ease both;
+  }
+
+  @keyframes newOrder {
+    from { opacity: 0; transform: scale(0.95); box-shadow: 0 0 40px rgba(34,197,94,0.4); }
+    to { opacity: 1; transform: scale(1); box-shadow: 0 0 20px rgba(34,197,94,0.1); }
+  }
+
+  .order-head {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .order-head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .order-head-meta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .order-count-chip{
+    font-size:11px;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:2px 8px;
+    font-weight:700;
+  }
+  .order-mini {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .order-number {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.5px;
+  }
+
+  .order-time {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid;
+  }
+
+  .status-pending { background: rgba(234,179,8,0.1); color: #eab308; border-color: rgba(234,179,8,0.25); }
+  .status-confirmed { background: rgba(59,130,246,0.1); color: #3b82f6; border-color: rgba(59,130,246,0.25); }
+  .status-shipping { background: rgba(168,85,247,0.1); color: #a855f7; border-color: rgba(168,85,247,0.25); }
+  .status-delivered { background: rgba(34,197,94,0.1); color: #22c55e; border-color: rgba(34,197,94,0.25); }
+  .status-cancelled { background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.25); }
+
+  .order-body { padding: 12px 16px; }
+
+  .customer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--green-glow);
+    border: 1px solid rgba(34,197,94,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .customer-name { font-size: 15px; font-weight: 700; }
+  .customer-phone { font-size: 12px; color: var(--text-muted); direction: ltr; text-align: right; }
+
+  .address-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .address-icon { font-size: 14px; margin-top: 1px; }
+  .address-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  .items-list { margin-bottom: 12px; }
+  .items-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .items-table-head {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr .6fr .9fr;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-bottom: 4px;
+    padding: 4px 0;
+  }
+  .item-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr .6fr .9fr;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-name { color: var(--text); }
+  .item-variant { color: var(--text-muted); font-size: 11px; text-align: center; }
+  .item-qty { color: var(--text-muted); font-size: 11px; text-align:center; }
+  .item-price { color: var(--green); font-weight: 700; text-align:left; }
+
+  .order-footer {
+    padding: 12px 16px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+  }
+
+  .total-label { font-size: 12px; color: var(--text-muted); }
+  .total-value { font-size: 18px; font-weight: 800; color: var(--green); }
+
+  .actions { display: flex; gap: 6px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+  .summary-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  .summary-k {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .summary-v {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .action-btn {
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-confirm {
+    background: rgba(59,130,246,0.1);
+    border-color: rgba(59,130,246,0.3);
+    color: #3b82f6;
+  }
+  .btn-confirm:hover { background: rgba(59,130,246,0.2); }
+
+  .btn-deliver {
+    background: rgba(34,197,94,0.1);
+    border-color: rgba(34,197,94,0.3);
+    color: var(--green);
+  }
+  .btn-deliver:hover { background: rgba(34,197,94,0.2); }
+
+  .btn-cancel {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.2);
+    color: #ef4444;
+  }
+  .btn-cancel:hover { background: rgba(239,68,68,0.15); }
+  .btn-delete {
+    background: rgba(127,29,29,0.2);
+    border-color: rgba(239,68,68,0.35);
+    color: #f87171;
+  }
+  .btn-delete:hover { background: rgba(127,29,29,0.35); }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-dim);
+    grid-column: 1/-1;
+  }
+  .empty-icon { font-size: 52px; margin-bottom: 14px; opacity: 0.4; }
+  .empty-text { font-size: 16px; font-weight: 600; color: var(--text-muted); }
+
+  /* ── Loading ── */
+  .loading {
+    text-align: center;
+    padding: 80px 20px;
+    grid-column: 1/-1;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, var(--card), #0A0A0A);
+    border: 1.5px solid var(--green);
+    color: var(--green);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Sound indicator ── */
+  .sound-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .sound-btn:hover { border-color: var(--green); color: var(--green); }
+  .sound-btn.on { color: var(--green); border-color: rgba(34,197,94,0.3); background: var(--green-glow); }
+  .auth-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .auth-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .auth-btn:hover { border-color: rgba(34,197,94,0.3); color: var(--green); }
+
+  @media (max-width: 768px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .orders-grid { grid-template-columns: 1fr; }
+    .header-inner { padding: 0 16px; }
+    .main { padding: 0 16px 40px; }
+    .stats-bar { padding: 16px; }
+    .summary-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        🧴 لوحة طلبات العطور
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="auth-chip" id="authChip">الحساب: غير مسجل</div>
+        <button class="auth-btn" id="authBtn" onclick="goToStoreLogin()">تسجيل الدخول</button>
+        <button class="sound-btn on" id="soundBtn" onclick="toggleSound()" title="تنبيه صوتي">🔔</button>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          مباشر
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon green">📦</div>
+      <div class="stat-info">
+        <div class="stat-label">إجمالي الطلبات</div>
+        <div class="stat-value green" id="statTotal">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow">⏳</div>
+      <div class="stat-info">
+        <div class="stat-label">بانتظار التأكيد</div>
+        <div class="stat-value yellow" id="statPending">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">🚚</div>
+      <div class="stat-info">
+        <div class="stat-label">قيد التوصيل</div>
+        <div class="stat-value blue" id="statShipping">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">💰</div>
+      <div class="stat-info">
+        <div class="stat-label">إيرادات اليوم</div>
+        <div class="stat-value green" id="statRevenue">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="section-header">
+      <div class="section-title">
+        الطلبات الواردة
+        <span id="orderCount">0</span>
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" onclick="setFilter('all',this)">الكل</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)">⏳ معلق</button>
+        <button class="filter-btn" onclick="setFilter('confirmed',this)">✅ مؤكد</button>
+        <button class="filter-btn" onclick="setFilter('shipping',this)">🚚 توصيل</button>
+        <button class="filter-btn" onclick="setFilter('delivered',this)">🎉 مكتمل</button>
+      </div>
+    </div>
+
+    <div class="orders-grid" id="ordersGrid">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div style="color:var(--text-muted);font-size:14px;">جاري تحميل الطلبات…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://lfzwynjzvqoctvftpxpi.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TlRYqmbrEq4poa26RcoeVQ_wDtzWDUP';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allOrders = [];
+let currentFilter = 'all';
+let soundEnabled = true;
+let isFirstLoad = true;
+let adminAuthorized = false;
+let currentUser = null;
+const ADMIN_EMAIL_ALLOWLIST = ['byatynwry@gmail.com'];
+
+const STATUS_MAP = {
+  pending:   { label: 'معلق',    cls: 'status-pending',   icon: '⏳' },
+  confirmed: { label: 'مؤكد',    cls: 'status-confirmed', icon: '✅' },
+  shipping:  { label: 'جاري التوصيل', cls: 'status-shipping', icon: '🚚' },
+  delivered: { label: 'مكتمل',   cls: 'status-delivered', icon: '🎉' },
+  cancelled: { label: 'ملغى',    cls: 'status-cancelled', icon: '❌' },
+};
+
+function extractCustomerFromOrder(o) {
+  const fromCols = {
+    name: (o && o.customer_name ? String(o.customer_name).trim() : ''),
+    phone: (o && o.customer_phone ? String(o.customer_phone).trim() : '')
+  };
+  if (fromCols.name && fromCols.phone) return fromCols;
+  const notes = String((o && o.notes) || '');
+  const nameMatch = notes.match(/الاسم:\s*([^|]+)/);
+  const phoneMatch = notes.match(/الهاتف:\s*([^|]+)/);
+  return {
+    name: fromCols.name || (nameMatch ? String(nameMatch[1]).trim() : ''),
+    phone: fromCols.phone || (phoneMatch ? String(phoneMatch[1]).trim() : '')
+  };
+}
+
+async function isAdminUser() {
+  const { data, error } = await sb.auth.getUser();
+  if (error || !data || !data.user) return false;
+  const user = data.user;
+  const email = String(user.email || '').trim().toLowerCase();
+  if (email && ADMIN_EMAIL_ALLOWLIST.includes(email)) return true;
+  const meta = user.user_metadata || {};
+  const appMeta = user.app_metadata || {};
+  if (meta.role === 'admin' || meta.is_admin === true || appMeta.role === 'admin') return true;
+  return false;
+}
+
+async function syncAuthHeader() {
+  const chip = document.getElementById('authChip');
+  const btn = document.getElementById('authBtn');
+  const { data } = await sb.auth.getUser();
+  currentUser = data?.user || null;
+  if (!currentUser) {
+    chip.textContent = 'الحساب: غير مسجل';
+    btn.textContent = 'تسجيل الدخول';
+    btn.onclick = goToStoreLogin;
+    return;
+  }
+  chip.textContent = 'الحساب: ' + (currentUser.email || '—');
+  btn.textContent = 'تسجيل خروج';
+  btn.onclick = logoutDashboard;
+}
+
+function goToStoreLogin() {
+  window.location.href = 'index.html';
+}
+
+async function logoutDashboard() {
+  await sb.auth.signOut();
+  showToast('تم تسجيل الخروج');
+  setTimeout(() => window.location.reload(), 350);
+}
+
+function renderAccessDenied() {
+  document.getElementById('statTotal').textContent = '—';
+  document.getElementById('statPending').textContent = '—';
+  document.getElementById('statShipping').textContent = '—';
+  document.getElementById('statRevenue').textContent = '—';
+  document.getElementById('orderCount').textContent = '0';
+  const grid = document.getElementById('ordersGrid');
+  grid.innerHTML = `
+    <div class="empty">
+      <div class="empty-icon">⛔</div>
+      <div class="empty-text">هذه الصفحة مخصصة للمشرف فقط. سيتم تحويلك للمتجر...</div>
+    </div>`;
+  setTimeout(()=>{ window.location.href='index.html'; }, 1200);
+}
+
+// ── Fetch orders with items ──
+async function loadOrders() {
+  if (!adminAuthorized) return;
+  const { data, error } = await sb
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    showToast('❌ فشل تحميل الطلبات: ' + error.message);
+    const grid = document.getElementById('ordersGrid');
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-text">تعذر جلب الطلبات من قاعدة البيانات</div>
+      </div>`;
+    return;
+  }
+  const orders = data || [];
+  const orderIds = orders.map(o => o.id).filter(Boolean);
+  let itemsByOrderId = new Map();
+  if (orderIds.length) {
+    const { data: itemsData, error: itemsErr } = await sb
+      .from('order_items')
+      .select('order_id, product_name, variant_name, quantity, unit_price')
+      .in('order_id', orderIds);
+    if (itemsErr) {
+      console.error(itemsErr);
+      showToast('⚠️ تم تحميل الطلبات بدون عناصر المشتريات: ' + itemsErr.message);
+    } else {
+      const grouped = new Map();
+      (itemsData || []).forEach(it => {
+        const key = it.order_id;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push(it);
+      });
+      itemsByOrderId = grouped;
+    }
+  }
+  allOrders = orders.map(o => ({ ...o, order_items: itemsByOrderId.get(o.id) || [] }));
+  isFirstLoad = false;
+  render();
+}
+
+// ── Render ──
+function render() {
+  const filtered = currentFilter === 'all'
+    ? allOrders
+    : allOrders.filter(o => o.status === currentFilter);
+
+  document.getElementById('orderCount').textContent = filtered.length;
+  updateStats();
+
+  const grid = document.getElementById('ordersGrid');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">لا توجد طلبات حالياً</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((o, i) => buildCard(o, i)).join('');
+}
+
+function buildCard(o, i) {
+  const s = STATUS_MAP[o.status] || STATUS_MAP.pending;
+  const customer = extractCustomerFromOrder(o);
+  const time = new Date(o.created_at).toLocaleString('ar-IQ', {
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const itemRows = o.order_items || [];
+  const items = itemRows.map(it => `
+    <div class="item-row">
+      <div class="item-name">
+        <span class="item-name">${it.product_name || '—'}</span>
+      </div>
+      <span class="item-variant">${it.variant_name || 'افتراضي'}</span>
+      <span class="item-qty">×${it.quantity || 0}</span>
+      <span class="item-price">${fmt(it.unit_price * it.quantity)}</span>
+    </div>
+  `).join('');
+
+  const address = [o.delivery_city, o.delivery_district, o.delivery_street]
+    .filter(Boolean).join('، ');
+  const createdAt = new Date(o.created_at).toLocaleString('ar-IQ');
+  const paymentMethod = o.payment_method || '—';
+
+  const canConfirm  = o.status === 'pending';
+  const canShip     = o.status === 'confirmed';
+  const canDeliver  = o.status === 'shipping';
+  const canCancel   = !['delivered','cancelled'].includes(o.status);
+
+  return `
+    <div class="order-card" style="animation-delay:${i*0.05}s" id="card-${o.id}">
+      <div class="order-head">
+        <div class="order-head-left">
+          <div class="order-number">#${o.order_number || o.id.slice(0,8).toUpperCase()}</div>
+          <div class="order-head-meta">
+            <div class="order-time">${time}</div>
+            <span class="order-count-chip">عدد المنتجات: ${itemRows.length}</span>
+            <div class="order-mini">العميل: ${customer.name || 'مستخدم'}</div>
+          </div>
+        </div>
+        <div class="status-badge ${s.cls}">${s.icon} ${s.label}</div>
+      </div>
+
+      <div class="order-body">
+        <div class="summary-grid">
+          <div class="summary-cell">
+            <div class="summary-k">الهاتف</div>
+            <div class="summary-v">${customer.phone || '—'}</div>
+          </div>
+          <div class="summary-cell">
+            <div class="summary-k">طريقة الدفع</div>
+            <div class="summary-v">${paymentMethod}</div>
+          </div>
+          <div class="summary-cell">
+            <div class="summary-k">تاريخ الإنشاء</div>
+            <div class="summary-v">${createdAt}</div>
+          </div>
+        </div>
+
+        ${address ? `
+        <div class="address-row">
+          <div class="address-icon">📍</div>
+          <div class="address-text">${address}${o.delivery_notes ? '<br>ملاحظة التوصيل: '+o.delivery_notes : ''}${o.notes ? '<br>تفاصيل إضافية: '+o.notes : ''}</div>
+        </div>` : ''}
+
+        <div class="items-list">
+          <div class="items-title">قسم المشتريات (${itemRows.length})</div>
+          ${
+            items
+            ? `<div class="items-table-head"><span>المنتج</span><span style="text-align:center">النوع</span><span style="text-align:center">العدد</span><span style="text-align:left">السعر</span></div>${items}`
+            : '<div style="color:var(--text-muted);font-size:12px;">لا توجد عناصر طلب محفوظة. تأكد من حفظ order_items في قاعدة البيانات.</div>'
+          }
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <div>
+          <div class="total-label">المجموع الكلي</div>
+          <div class="total-value">${fmt(o.total)}</div>
+        </div>
+        <div class="actions">
+          ${canConfirm  ? `<button class="action-btn btn-confirm"  onclick="updateStatus('${o.id}','confirmed')">تأكيد</button>` : ''}
+          ${canShip     ? `<button class="action-btn btn-confirm"  onclick="updateStatus('${o.id}','shipping')">توصيل</button>` : ''}
+          ${canDeliver  ? `<button class="action-btn btn-deliver"  onclick="updateStatus('${o.id}','delivered')">مكتمل</button>` : ''}
+          ${canCancel   ? `<button class="action-btn btn-cancel"   onclick="updateStatus('${o.id}','cancelled')">إلغاء</button>` : ''}
+          <button class="action-btn btn-delete" onclick="deleteOrder('${o.id}')">حذف</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString('ar-IQ') + ' د.ع';
+}
+
+// ── Stats ──
+function updateStats() {
+  const today = new Date().toDateString();
+  const todayOrders = allOrders.filter(o => new Date(o.created_at).toDateString() === today);
+  const revenue = todayOrders
+    .filter(o => o.status !== 'cancelled')
+    .reduce((s, o) => s + Number(o.total), 0);
+
+  document.getElementById('statTotal').textContent    = allOrders.length;
+  document.getElementById('statPending').textContent  = allOrders.filter(o=>o.status==='pending').length;
+  document.getElementById('statShipping').textContent = allOrders.filter(o=>o.status==='shipping').length;
+  document.getElementById('statRevenue').textContent  = fmt(revenue);
+}
+
+// ── Update Status ──
+async function updateStatus(id, newStatus) {
+  const { error } = await sb
+    .from('orders')
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) { showToast('❌ حصل خطأ: ' + error.message); return; }
+
+  const o = allOrders.find(x => x.id === id);
+  if (o) o.status = newStatus;
+  render();
+
+  const labels = { confirmed: '✅ تم تأكيد الطلب', shipping: '🚚 بدأ التوصيل', delivered: '🎉 اكتمل الطلب', cancelled: '❌ تم إلغاء الطلب' };
+  showToast(labels[newStatus] || 'تم التحديث');
+}
+
+// ── Delete Order ──
+async function deleteOrder(id) {
+  if (!adminAuthorized) return;
+  const ok = confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');
+  if (!ok) return;
+
+  const { error } = await sb.from('orders').delete().eq('id', id);
+  if (error) {
+    showToast('❌ فشل حذف الطلب: ' + error.message);
+    return;
+  }
+
+  allOrders = allOrders.filter(o => o.id !== id);
+  render();
+  showToast('🗑️ تم حذف الطلب');
+}
+
+// ── Filter ──
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Sound ──
+function playSound() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659, 784].forEach((f, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f;
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.3);
+      o.start(ctx.currentTime + i * 0.15);
+      o.stop(ctx.currentTime + i * 0.15 + 0.3);
+    });
+  } catch(e) {}
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundBtn');
+  btn.classList.toggle('on', soundEnabled);
+  btn.textContent = soundEnabled ? '🔔' : '🔕';
+}
+
+// ── Realtime ──
+function subscribeRealtime() {
+  if (!adminAuthorized) return;
+  sb.channel('orders-channel')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'orders'
+    }, async (payload) => {
+      // Fetch full order with items
+      const { data } = await sb
+        .from('orders')
+        .select('*')
+        .eq('id', payload.new.id)
+        .single();
+
+      if (data) {
+        const { data: its } = await sb
+          .from('order_items')
+          .select('order_id, product_name, variant_name, quantity, unit_price')
+          .eq('order_id', data.id);
+        data.order_items = its || [];
+        allOrders.unshift(data);
+        render();
+        // Mark as new
+        setTimeout(() => {
+          const card = document.getElementById('card-' + data.id);
+          if (card) card.classList.add('new-order');
+        }, 50);
+        playSound();
+        showToast('🛒 طلب جديد وصل!');
+      }
+    })
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'orders'
+    }, (payload) => {
+      const idx = allOrders.findIndex(o => o.id === payload.new.id);
+      if (idx !== -1) {
+        allOrders[idx] = { ...allOrders[idx], ...payload.new };
+        render();
+      }
+    })
+    .subscribe();
+}
+
+// ── Init ──
+async function initDashboard() {
+  await syncAuthHeader();
+  adminAuthorized = await isAdminUser();
+  if (!adminAuthorized) {
+    renderAccessDenied();
+    return;
+  }
+  await loadOrders();
+  subscribeRealtime();
+}
+initDashboard();
+</script>
+</body>
+</html>
