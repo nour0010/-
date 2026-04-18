@@ -1,36 +1,10 @@
 const supabaseOk = typeof window.HE !== 'undefined' && window.HE && typeof window.HE.Auth !== 'undefined';
 
 /* ─── DATA ─── */
-const EMBEDDED_CATS = [
-  { id: 'all', label: 'الكل', icon: '' },
-  { id: 'women', label: 'عطور نسائية', icon: '' },
-  { id: 'men', label: 'عطور رجالية', icon: '' },
-  { id: 'unisex', label: 'عطور يونيسكس', icon: '' },
-  { id: 'niche', label: 'عطور نيش', icon: '' },
-  { id: 'oud', label: 'عطور العود', icon: '' },
-  { id: 'gift', label: 'مجموعات هدايا', icon: '' },
-  { id: 'care', label: 'العناية والتعطير', icon: '' }
-];
+const EMBEDDED_CATS = [];
 
 /* بيانات افتراضية لمتجر العطور */
-const EMBEDDED_PRODUCTS = [
-  { id: 101, n: 'لافيير روز', em: '', c: 'women', p: 89000, v: ['50ml', '100ml'] },
-  { id: 102, n: 'مس دو فلور', em: '', c: 'women', p: 97000, v: ['50ml', '100ml', '150ml'] },
-  { id: 103, n: 'إلجينت بلوم', em: '', c: 'women', p: 76000, v: ['30ml', '75ml'] },
-  { id: 104, n: 'أمبريال وود', em: '', c: 'men', p: 99000, v: ['75ml', '125ml'] },
-  { id: 105, n: 'نايت ليذر', em: '', c: 'men', p: 92000, v: ['60ml', '100ml'] },
-  { id: 106, n: 'سيغنتشر كود', em: '', c: 'men', p: 84000, v: ['50ml', '100ml'] },
-  { id: 107, n: 'أورا بلاتين', em: '', c: 'unisex', p: 108000, v: ['50ml', '100ml'] },
-  { id: 108, n: 'فيلفيت سموك', em: '', c: 'unisex', p: 95000, v: ['75ml', '125ml'] },
-  { id: 109, n: 'العود الملكي', em: '', c: 'oud', p: 145000, v: ['30ml', '60ml'] },
-  { id: 110, n: 'مخلط شرقي فاخر', em: '', c: 'oud', p: 158000, v: ['30ml', '50ml'] },
-  { id: 111, n: 'نيش 27', em: '', c: 'niche', p: 189000, v: ['50ml', '100ml'] },
-  { id: 112, n: 'أوبسيديان نوت', em: '', c: 'niche', p: 176000, v: ['50ml', '90ml'] },
-  { id: 113, n: 'صندوق هدايا برستيج', em: '', c: 'gift', p: 125000, v: ['Classic', 'Premium'] },
-  { id: 114, n: 'مجموعة مناسبات', em: '', c: 'gift', p: 139000, v: ['3 قطع', '5 قطع'] },
-  { id: 115, n: 'بودي ميست حريري', em: '', c: 'care', p: 39000, v: ['120ml', '200ml'] },
-  { id: 116, n: 'لوشن معطّر فاخر', em: '', c: 'care', p: 42000, v: ['150ml', '250ml'] }
-];
+const EMBEDDED_PRODUCTS = [];
 
 let CATS = EMBEDDED_CATS;
 let PRODUCTS = EMBEDDED_PRODUCTS;
@@ -1328,12 +1302,11 @@ function doSearch(q){
   }
   drop.innerHTML=res.map(p=>`
     <div class="srch-row" onclick='jumpTo(${JSON.stringify(p.id)})'>
-      <span class="si-emoji">${p.em}</span>
       <div class="srch-row-info">
         <div class="srch-row-name">${p.n}</div>
         <div class="srch-row-meta">${CATS.find(c=>c.id===p.c)?.label||''}</div>
       </div>
-      <span class="srch-row-price">${p.p.toLocaleString()} د.ع</span>
+      <span class="srch-row-price">${p.p.toLocaleString()} <small style="font-size:.65rem;opacity:.8">د.ع</small></span>
     </div>
   `).join('');
   drop.classList.add('on');

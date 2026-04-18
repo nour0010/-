@@ -235,14 +235,6 @@ body{
   border-color:var(--emerald2);
   transform:translateX(-2px);
 }
-.srch-row .si-emoji{
-  font-size:1.4rem;flex-shrink:0;
-  width:40px;height:40px;
-  background:var(--base);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  border:1.5px solid var(--line);
-}
 .srch-row-info{flex:1;min-width:0}
 .srch-row-name{font-weight:700;color:var(--ink);font-size:.9rem}
 .srch-row-meta{font-size:.74rem;color:var(--ink3);margin-top:.15rem}
@@ -1085,20 +1077,8 @@ body{
   cursor:pointer;
   transition:all .2s;
 }
-.rcard-add:hover{filter:brightness(1.1);transform:scale(1.02)}
-  border-radius:10px;
-  background:linear-gradient(135deg,var(--emerald),var(--emerald2));
-  color:#fff;
-  border:none;
-  font-size:.82rem;
-  font-weight:800;
-  font-family:'Tajawal',sans-serif;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:.35rem;
-  transition:all .18s ease;
-  flex-shrink:0;
-}
-.rcard-add:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(37,126,88,.28)}
+.rcard-add:hover{filter:brightness(1.1);transform:scale(1.02);box-shadow:0 8px 18px rgba(37,126,88,.28)}
+
 
 /* ───────── CART DRAWER ───────── */
 .overlay{
